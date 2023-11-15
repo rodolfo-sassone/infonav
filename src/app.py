@@ -86,7 +86,7 @@ def geocoding(luoghi):
             string = string + ' ' + address
             string = string.replace(' ','%20')
                 
-        r = requests.get('https://maps.googleapis.com/maps/api/geocode/json?address='+string+'&components=administrative_area:bari&key=AIzaSyCbXPgdFlNqGq9ES6aluPZZhUBi70EHtWQ')
+        r = requests.get('https://maps.googleapis.com/maps/api/geocode/json?address='+string+'&components=administrative_area:bari&key=#YourAPI-Key')
         r.raise_for_status()
         
         d = r.json()

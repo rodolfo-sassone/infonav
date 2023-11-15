@@ -7,7 +7,7 @@ import json
 import googlemaps
 import xml.etree.ElementTree as ET
 
-API_key = 'AIzaSyCbXPgdFlNqGq9ES6aluPZZhUBi70EHtWQ'
+API_key = '#YourAPI-Key'
 gmaps = googlemaps.Client(key = API_key)
 
 tree = ET.parse("InfoNav/src/data/Bari.osm")

@@ -58,7 +58,7 @@ print(n1,n2)
 import json
 import googlemaps
 
-API_key = 'AIzaSyCbXPgdFlNqGq9ES6aluPZZhUBi70EHtWQ'
+API_key = '#YourAPI-Key'
 gmaps = googlemaps.Client(key = API_key)
 
 
@@ -87,7 +87,7 @@ print(inc1,inc2)
 '''
 import googlemaps
 
-API_key = 'AIzaSyCbXPgdFlNqGq9ES6aluPZZhUBi70EHtWQ'
+API_key = '#YourAPI-Key'
 place_key = 'AIzaSyCd3P7ABK-YKlSH9BLrppbkBoXQpGrIpvY'
 
 
