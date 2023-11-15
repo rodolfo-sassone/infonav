@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="static/style.css" />
+    <title>InfoNav</title>
+</head>
+<body>
+    <header>
+        <h1>InfoNav</h1>
+    </header>
+    <nav>
+        <ul>
+            <a href='http://127.0.0.1:5000/' class="current_page"><li class="current_page">HOME</li></a>
+            <a href='http://127.0.0.1:5000/accident'><li>INCIDENTI</li></a>
+            <a href='http://127.0.0.1:5000/crime'><li >TASSO CRIMINALITÀ</li></a>
+        </ul>
+    </nav>
+    <div id="container" >
+        <div id="map"></div>
+    </div>
+    <script>
+
+    let mapStyles = [
+                    {
+                        featureType: "poi.business",
+                        stylers: [{ visibility: "off" }],
+                    },
+                    {
+                        featureType: "transit",
+                        elementType: "labels.icon",
+                        stylers: [{ visibility: "off" }],
+                    },
+                    {
+                        featureType: "road",
+                        elementType: "labels.text.fill",
+                        stylers: [{ color: "#636363" }],
+                    },
+                    {
+                        featureType: "road.arterial",
+                        elementType: "geometry",
+                        stylers: [{ color: "#EBEBEB" }],
+                    },
+                    {
+                        featureType: "road.arterial",
+                        elementType: "geometry.stroke",
+                        stylers: [{ color: "#ADADAD" }],
+                    },
+                    {
+                        featureType: "road.highway",
+                        elementType: "geometry",
+                        stylers: [{ color: "#8CDEB8" }],
+                    },
+                    {
+                        featureType: "road.highway",
+                        elementType: "geometry.stroke",
+                        stylers: [{ color: "#50A589" }],
+                    },
+                    {
+                        featureType: "road.highway.controlled_access",
+                        elementType: "geometry",
+                        stylers: [{ color: "#87B1E8" }],
+                    },
+                    {
+                        featureType: "road.highway.controlled_access",
+                        elementType: "geometry.stroke",
+                        stylers: [{ color: "#4077BF" }],
+                    },
+                    {
+                        featureType: "road.local",
+                        elementType: "geometry",
+                        stylers: [{ color: "#FAFDFF" }],
+                    },
+                    {
+                        featureType: "road.local",
+                        elementType: "geometry.stroke",
+                        stylers: [{ color: "#ADDDFF" }],
+                    },
+                    {
+                        featureType: "water",
+                        elementType: "geometry",
+                        stylers: [{ color: "#B8DCFF" }],
+                    },
+                    {
+                        featureType: "poi",
+                        elementType: "geometry",
+                        stylers: [{ visibility: "off" }],
+                    },
+                    {
+                        featureType: "poi",
+                        elementType: "labels.text.fill",
+                        stylers: [{ lightness: 14 }],
+                    },
+                ]
+
+        async function initMap(){
+		
+            let mapOptions = {
+                center: new google.maps.LatLng(41.117143, 16.871871),
+                zoom: 12,
+                styles: mapStyles
+            }
+
+            let map = new google.maps.Map(document.getElementById('map'), mapOptions);
+        }
+    </script>
+
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCbXPgdFlNqGq9ES6aluPZZhUBi70EHtWQ&callback=initMap"></script>
+</body>
+</html>
+

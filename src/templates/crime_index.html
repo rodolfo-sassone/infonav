@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="static/style.css" />
+    <title>InfoNav</title>
+</head>
+<body>
+    <header>
+        <h1>InfoNav</h1>
+    </header>
+    <nav>
+        <ul>
+            <a href='http://127.0.0.1:5000/'><li>HOME</li></a>
+            <a href='http://127.0.0.1:5000/accident'><li>INCIDENTI</li></a>
+            <a href='http://127.0.0.1:5000/crime' class="current_page"><li class="current_page">TASSO CRIMINALITÀ</li></a>
+        </ul>
+    </nav>
+    <div id="container" >
+        <div id="map"></div>
+    </div>
+    <div id="key">
+        <h4>LEGENDA</h4>
+        <p>
+            <span id="dot" class="yellow"></span> 0.3&#8804;tasso criminalità&#60;0.7&nbsp;&nbsp;
+            <span id="dot" class="orange"></span> 0.7&#8804;tasso criminalità&#60;1.5&nbsp;&nbsp;
+            <span id="dot" class="red"></span> tasso criminalità&#8805;1.5
+        </p>
+    </div>
+    <div id="info">
+        <div id="intersections">
+        </div>
+        <div id="ways">
+        </div>
+        <div id="intersections">
+        </div>
+    </div>
+    <script>
+
+    let mapStyles = [
+                    {
+                        featureType: "poi.business",
+                        stylers: [{ visibility: "off" }],
+                    },
+                    {
+                        featureType: "transit",
+                        elementType: "labels.icon",
+                        stylers: [{ visibility: "off" }],
+                    },
+                    {
+                        featureType: "road",
+                        elementType: "labels.text.fill",
+                        stylers: [{ color: "#636363" }],
+                    },
+                    {
+                        featureType: "road.arterial",
+                        elementType: "geometry",
+                        stylers: [{ color: "#EBEBEB" }],
+                    },
+                    {
+                        featureType: "road.arterial",
+                        elementType: "geometry.stroke",
+                        stylers: [{ color: "#ADADAD" }],
+                    },
+                    {
+                        featureType: "road.highway",
+                        elementType: "geometry",
+                        stylers: [{ color: "#8CDEB8" }],
+                    },
+                    {
+                        featureType: "road.highway",
+                        elementType: "geometry.stroke",
+                        stylers: [{ color: "#50A589" }],
+                    },
+                    {
+                        featureType: "road.highway.controlled_access",
+                        elementType: "geometry",
+                        stylers: [{ color: "#87B1E8" }],
+                    },
+                    {
+                        featureType: "road.highway.controlled_access",
+                        elementType: "geometry.stroke",
+                        stylers: [{ color: "#4077BF" }],
+                    },
+                    {
+                        featureType: "road.local",
+                        elementType: "geometry",
+                        stylers: [{ color: "#FAFDFF" }],
+                    },
+                    {
+                        featureType: "road.local",
+                        elementType: "geometry.stroke",
+                        stylers: [{ color: "#ADDDFF" }],
+                    },
+                    {
+                        featureType: "water",
+                        elementType: "geometry",
+                        stylers: [{ color: "#B8DCFF" }],
+                    },
+                    {
+                        featureType: "poi",
+                        elementType: "geometry",
+                        stylers: [{ visibility: "off" }],
+                    },
+                    {
+                        featureType: "poi",
+                        elementType: "labels.text.fill",
+                        stylers: [{ lightness: 14 }],
+                    },
+                ]
+                
+	function parse_data(data) {
+		data = data.replaceAll('&#39;','"');
+		
+		return JSON.parse(data);
+		}
+		
+        way_ci = parse_data('{{way_ci}}');		
+
+        console.log(way_ci);
+
+		
+        async function initMap(){
+		
+            let mapOptions = {
+                center: new google.maps.LatLng(41.117143, 16.871871),
+                zoom: 12,
+                styles: mapStyles
+            }
+
+            let map = new google.maps.Map(document.getElementById('map'), mapOptions);
+
+            let info = document.getElementById('ways');
+            info.innerHTML = '';
+			//STRADE
+            for(i=0;i<way_ci.length;i++){
+                let dict = way_ci[i];
+                if (dict['ci'] >= 0.3){
+                    // Imposta le coordinate di partenza e arrivo per il percorso
+                    let start = new google.maps.LatLng(dict['start']['lat'], dict['start']['lng']);
+                    let end = new google.maps.LatLng(dict['end']['lat'], dict['end']['lng']);
+
+                    let request = {}
+                    if((dict['end']['lat'] == '41.1652971' && dict['end']['lng'] == '16.709326' && dict['start']['lat'] == '41.0800113' &&  dict['start']['lng'] == '17.0319806')
+                        || dict['end']['lat'] == "41.1266569" && dict['end']['lng'] == "16.8635968" && dict['start']['lat'] == "41.1586845" &&  dict['start']['lng'] == "16.7623418")
+                    {
+                        request = {
+                            origin: start,
+                            destination: end,
+                            travelMode: google.maps.TravelMode.DRIVING // Puoi cambiare DRIVING con WALKING, BICYCLING o TRANSIT
+                        };
+                    }else{
+                        request = {
+                            origin: start,
+                            destination: end,
+                            travelMode: google.maps.TravelMode.BICYCLING // Puoi cambiare DRIVING con WALKING, BICYCLING o TRANSIT
+                        };
+                    }
+                    
+                    // Richiedi le indicazioni al DirectionsService
+                    new google.maps.DirectionsService().route(request, function(response, status) {
+                        if (status == google.maps.DirectionsStatus.OK) 
+                        {
+                            if(dict['ci'] >= 0.3)
+                            {// Aggiungi il percorso con DirectionsRenderer
+                                let directionRender = new google.maps.DirectionsRenderer({
+                                        map: map,
+                                        suppressMarkers: true,  // Nasconde i marker di default generati dal percorso
+                                        directions: response,   // Visualizza il percorso sulla mappa
+                                        preserveViewport:true,
+                                        suppressBicyclingLayer: true
+                                    });
+                                
+                                if(dict["ci"] < 0.7)  //TODO scaglioni sensati
+                                {    
+                                    directionRender.setOptions({polylineOptions: { strokeColor: '#ffd800',  strokeWeight:3 }});  // Imposta il colore del percorso
+                                } else if (dict['ci'] >= 0.7 && dict['ci'] < 1.5){
+                                    directionRender.setOptions({ polylineOptions: { strokeColor: '#fd8700', strokeWeight:3 } });  // Imposta il colore del percorso
+                                } else {
+                                directionRender.setOptions({ polylineOptions: { strokeColor: '#FF0000', strokeWeight:3 } });  // Imposta il colore del percorso
+                                }
+                            }
+
+                            /*
+                            // Calcola e visualizza il tempo di percorrenza in macchina
+                            let route = response.routes[0];
+                            let totalTime = 0;
+                            route.legs.forEach(leg => {
+                                totalTime += leg.duration.value;
+                            });
+                            let totalMinutes = Math.floor(totalTime / 60);
+                            alert('Tempo di percorrenza in macchina: ' + totalMinutes + ' minuti');
+                            */
+                        } else {
+                            console.log(dict)
+                            console.log('Impossibile ottenere le indicazioni: ' +status);
+                        }
+
+                    });
+
+                    let info_p = '';
+                    if(dict["ci"] < 0.7)
+                    {
+                        info_p = '<div id="way"><div id="color-way"><span id="dot" class="yellow"></span></div>';
+                    }
+                    else if (dict['ci'] >= 0.7 && dict['ci'] < 1.5)
+                    {
+                        info_p = '<div id="way"><div id="color-way"><span id="dot" class="orange"></span></div>';
+                    }
+                    else
+                    {
+                        info_p = '<div id="way"><div id="color-way"><span id="dot" class="red"></span></div>';
+                    }
+
+                    info_p = info_p + '<div id="info-way"><div id="name-way"><h5>' + dict['name'] + '</h5></div><div id="n-accident"><p>Tasso di Criminalità: ' + String(dict['ci']) + '</p>';
+                    
+                    if (dict['fur'] != 0) {
+                        info_p = info_p + '</p><p>Furti: '+ String(dict['fur']) +'</p>'; 
+                    }
+                    if (dict['drug'] != 0) {
+                        info_p = info_p +'<p>Droghe: '+ String(dict['drug']) +'</p>';
+                    }
+                    if (dict['rap'] != 0) {
+                        info_p = info_p +'<p>Rapine: '+ String(dict['rap']) +'</p>';
+                    }
+                    if (dict['kill'] != 0) {
+                        info_p = info_p +'<p>Omicicdi: '+ String(dict['kill']) +'</p>';
+                    }
+                    if (dict['agg'] != 0) {
+                        info_p = info_p +'<p>Aggressioni: '+ String(dict['agg']) +'</p>';
+                    }
+                    if(dict['spa'] != 0) {
+                        info_p = info_p +'<p>Sparatorie: '+ String(dict['spa']) +'</p>';
+                    }
+                    if (dict['fire'] != 0) {
+                        info_p = info_p +'<p>Incendi: '+ String(dict['fire']) +'</p>';
+                    }
+
+                    info_p = info_p +'</div></div></div>';
+                    info.innerHTML =  info.innerHTML + info_p;
+
+                }
+            }
+            			/* Marker di colore diverso - non funziona
+			const pinBackground = new PinElement({
+				background: "#FBBC04",
+			});
+			
+			for (i=0;i<furti_loc.length;i++){
+				dict = furti_loc[i];
+				let incident_marker = new AdvancedMarkerElement({
+					position: {lat: dict["lat"],lng: dict["lng"]},
+					map: map,
+					title: 'furto '+ String(i),
+					content: pinBackground.element
+					});
+				}
+				*/
+                /*
+            // Aggiungi il marker
+            let marker = new google.maps.Marker({
+                position: new google.maps.LatLng(41.11350735438691, 16.86877253386591),
+                map: map,
+                title: 'Ciao'
+            });
+
+            // Aggiungi la infobox
+            let infowindow = new google.maps.InfoWindow({
+                content: 'Ciao'
+            });
+
+            // Mostra la infobox al clic sul marker
+            marker.addListener('click', function() {
+                infowindow.open(map, marker);
+            });
+			*/
+
+
+            /*
+            // Aggiungi un event listener al clic sulla mappa
+            map.addListener('click', function(event) {
+                // Ottieni le coordinate del punto cliccato
+                let clickedLat = event.latLng.lat();
+                let clickedLng = event.latLng.lng();
+
+                // Visualizza le coordinate a video
+                alert('Latitudine: ' + clickedLat + ', Longitudine: ' + clickedLng);
+            });*/
+
+        }
+    </script>
+
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCbXPgdFlNqGq9ES6aluPZZhUBi70EHtWQ&callback=initMap"></script>
+</body>
+</html>
+
