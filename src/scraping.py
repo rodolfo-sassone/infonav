@@ -102,3 +102,71 @@ class scraperBT(object):
             list_addresses.append({'addresses': addresses, 'year': year}) #lista di indirizzi per ogni articolo trovato e anno
 
         return list_addresses
+    
+
+class scraperBL(object):
+
+    def __init__(self, link_topic):
+        self.link_topic = link_topic
+
+    def get_nextPage(self, soup):
+        link = None
+
+        nav = soup.find('nav')
+        div_pages = nav.find('div', class_ = 'nav-links')
+        next_page = div_pages.find('a', class_ = 'next page-numbers')
+
+        if next_page != None:
+            link = next_page.get('href')     
+
+        return link
+    
+    def get_articles(self, soup):
+        div_articles = soup.find('div', class_ = 'live-search-content')
+        articles = div_articles.find_all('article')
+
+        la = []
+        for art in articles:
+            title = art.find('h3').get_text()
+            paragraph = art.find('p').get_text()
+            date = art.find('span', class_ = 'live-search-date').get_text()
+            text = title + paragraph + date
+
+            la.append(text)
+
+        return la
+    
+    def scrape(self, min_pages = 10):
+        link_page = self.link_topic
+        c = 0
+        list_articles = []
+
+        while c < min_pages and link_page != None:
+            response = requests.get(link_page)
+            response.raise_for_status()
+                    
+            soup = bs4.BeautifulSoup(response.text, 'html.parser')
+
+            la = self.get_articles(soup)
+
+            list_articles = list_articles + la
+            link_page = self.get_nextPage(soup)
+            c = c + 1
+        
+        docs = Parser().parse_where(list_articles)
+        
+        #LOCALITA NON AGGIUNTA ALLA PIPELINE di spacy quindi niente localita' tra le ent
+        list_addresses = []
+        current = datetime.now()
+        cy = current.strftime('%Y')
+        for doc in docs:
+            addresses = []
+            year = cy
+            for ent in doc.ents:
+                if ent.label_.lower() == 'luogo':
+                    addresses.append(ent.ent_id_.lower())
+                elif ent.label_.lower() == 'year':
+                    year = ent.text
+            list_addresses.append({'addresses': addresses, 'year': year}) #lista di indirizzi per ogni articolo trovato e anno
+
+        return list_addresses

@@ -3,7 +3,19 @@ dobbiamo provare a calcolare la distanza senza l'api google probabilmente rispar
 proviamo prima una distanza naive tipo lat1 - lat2 + lng1 - lng2 SEMBRA FUNZIONARE ED È VELOCISSIMOOOO
 altrimenti cedi chatGPT
 '''
-from datetime import datetime
+
+from scraping import scraperBL
+
+scraper = scraperBL('https://barilive.it/?s=furti')
+
+la = scraper.scrape()
+
+print(la)
+
+
+
+
+'''from datetime import datetime
 
 # Ottenere la data corrente
 data_corrente = datetime.now()
@@ -13,7 +25,7 @@ data_formattata = data_corrente.strftime("%Y")
 
 # Stampare la data formattata
 print("Data corrente formattata:", data_formattata)
-
+'''
 
 
 '''from spacy.lang.en import English
