@@ -6,7 +6,8 @@ Created on 19 set 2023
 
 import bs4
 import requests
-
+from myParser import Parser
+from datetime import datetime
 #BOT per scraping su BARI TODAY
 
 class scraperBT(object):
@@ -74,3 +75,30 @@ class scraperBT(object):
                 
         return la
         
+    def scrape(self, min_pages = 10):
+        old_len = 0
+
+        list_pages = self.get_pages(list_pages = [])
+        while len(list_pages) < min_pages and old_len < len(list_pages):
+            new_link = self.prefisso + list_pages[-1]
+            old_len = len(list_pages)
+            list_pages = self.get_pages(link = new_link, list_pages = list_pages)
+        
+        list_articles = self.get_articles(list_pages)
+        docs = Parser().parse_where(list_articles)
+        
+        #LOCALITA NON AGGIUNTA ALLA PIPELINE di spacy quindi niente localita' tra le ent
+        list_addresses = []
+        current = datetime.now()
+        cy = current.strftime('%Y')
+        for doc in docs:
+            addresses = []
+            year = cy
+            for ent in doc.ents:
+                if ent.label_.lower() == 'luogo':
+                    addresses.append(ent.ent_id_.lower())
+                elif ent.label_.lower() == 'year':
+                    year = ent.text
+            list_addresses.append({'addresses': addresses, 'year': year}) #lista di indirizzi per ogni articolo trovato e anno
+
+        return list_addresses

@@ -203,7 +203,7 @@
                                 directionRender.setOptions({ polylineOptions: { strokeColor: '#FF0000', strokeWeight:3 } });  // Imposta il colore del percorso
                             }
                             let infowindow = new google.maps.InfoWindow({
-                                content: '<h2>'+ dict['name'] + '</h2><br><p>' + String(dict['count']) + 'incidenti in questa via'
+                                content: '<h2>'+ dict['address'] + '</h2><br><p>' + String(dict['count']) + 'incidenti in questa via'
                             });
 
                             directionRender.addListener('click', function() {
@@ -222,11 +222,11 @@
                 let info_p = '';
                 if (dict['count'] < 10)
                 {
-                    info_p = '<div id="way"><div id="color-way"><span id="dot" class="orange"></span></div><div id="info-way"><div id="name-way"><h5>' + dict['name'] + '</h5></div><div id="n-accident"><p>Numero incidenti:' + String(dict['count']) + '</p></div></div></div>';
+                    info_p = '<div id="way"><div id="color-way"><span id="dot" class="orange"></span></div><div id="info-way"><div id="name-way"><h5>' + dict['address'] + '</h5></div><div id="n-accident"><p>Numero incidenti:' + String(dict['count']) + '</p></div></div></div>';
                 }
                 else
                 {
-                    info_p = '<div id="way"><div id="color-way"><span id="dot" class="red"></span></div><div id="info-way"><div id="name-way"><h5>' + dict['name'] + '</h5></div><div id="n-accident"><p>Numero incidenti:' + String(dict['count']) + '</p></div></div></div>';
+                    info_p = '<div id="way"><div id="color-way"><span id="dot" class="red"></span></div><div id="info-way"><div id="name-way"><h5>' + dict['address'] + '</h5></div><div id="n-accident"><p>Numero incidenti:' + String(dict['count']) + '</p></div></div></div>';
                 }
                 //console.log(info_p);
                 info.innerHTML =  info.innerHTML + info_p;

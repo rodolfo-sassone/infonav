@@ -3,7 +3,20 @@ dobbiamo provare a calcolare la distanza senza l'api google probabilmente rispar
 proviamo prima una distanza naive tipo lat1 - lat2 + lng1 - lng2 SEMBRA FUNZIONARE ED È VELOCISSIMOOOO
 altrimenti cedi chatGPT
 '''
-from spacy.lang.en import English
+from datetime import datetime
+
+# Ottenere la data corrente
+data_corrente = datetime.now()
+
+# Formattare la data come una stringa
+data_formattata = data_corrente.strftime("%Y")
+
+# Stampare la data formattata
+print("Data corrente formattata:", data_formattata)
+
+
+
+'''from spacy.lang.en import English
 
 nlp = English()
 ruler = nlp.add_pipe("entity_ruler")
@@ -19,7 +32,7 @@ print([(ent.text, ent.label_, ent.ent_id_) for ent in doc1.ents])
 
 doc2 = nlp("Apple is opening its first big office in San Fran.")
 print([(ent.text, ent.label_, ent.ent_id_) for ent in doc2.ents])
-
+'''
 
 '''import json
 import xml.etree.ElementTree as ET
