@@ -134,25 +134,30 @@ def crime_index(way_fur = None, way_drug = None, way_rap = None, way_kill = None
     crimes = add_crime(way_fire, 'fire', crimes)
 
     ways = []
-    history = way()
+    last_year = way()
+    all = way()
     current = datetime.now()
     past_y = str(current.year - 1)
+    year_in_all = 0
     for year in crimes:
-        if year == past_y:  #TODO calcola anno precedente
+            year_in_all = year_in_all + 1
             for _, wayy in crimes[year].items():
-                history.update_crimes(wayy)
-    print('******************************HISTORY(2022)******************************************')
-    print(history.get_crimes())
-    print('******************************2023******************************************')
+                if year == past_y:
+                    last_year.update_crimes(wayy)
+                all.update_crimes(wayy)
+
+    print('****************************** 2022 ******************************************')
+    print(last_year.get_crimes())
+    print('****************************** 2023 ******************************************')
     cy = current.strftime('%Y')
     print(crimes[cy])
     for name, wayy in crimes[cy].items():
         ci = 0
         for k, v in wayy.get_crimes().items():
-            if history.get_crime(k) != 0:
-                sub_index = v / history.get_crime(k)
+            if last_year.get_crime(k) != 0:
+                sub_index = v / last_year.get_crime(k)
             else:
-                sub_index = v / 2   #TODO costante sensata o media dei crimini in history
+                sub_index = v / (all.get_crime(k)/ year_in_all) #se nell'anno passato non abbiamo dati su un crimine utilizziamo la media della città come 'massimo'
             ci = ci + sub_index
 
         ways.append({'ci':ci, 'address':name, 'fur':wayy.get_crime('fur'), 'drug':wayy.get_crime('drug'), 'rap':wayy.get_crime('rap'), 'kill':wayy.get_crime('kill'), 'agg':wayy.get_crime('agg'), 'spa':wayy.get_crime('spa'), 'fire':wayy.get_crime('fire')})

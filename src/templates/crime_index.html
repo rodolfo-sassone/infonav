@@ -24,8 +24,8 @@
     <div id="key">
         <h4>LEGENDA</h4>
         <p>
-            <span id="dot" class="yellow"></span> 0.3&#8804;tasso criminalità&#60;0.7&nbsp;&nbsp;
-            <span id="dot" class="orange"></span> 0.7&#8804;tasso criminalità&#60;1.5&nbsp;&nbsp;
+            <span id="dot" class="yellow"></span> 0.3&#8804;tasso criminalità&#60;0.6&nbsp;&nbsp;
+            <span id="dot" class="orange"></span> 0.6&#8804;tasso criminalità&#60;1&nbsp;&nbsp;
             <span id="dot" class="red"></span> tasso criminalità&#8805;1.5
         </p>
     </div>
@@ -173,10 +173,10 @@
                                         suppressBicyclingLayer: true
                                     });
                                 
-                                if(dict["ci"] < 0.7)  //TODO scaglioni sensati
+                                if(dict["ci"] < 0.6)  //TODO scaglioni sensati
                                 {    
                                     directionRender.setOptions({polylineOptions: { strokeColor: '#ffd800',  strokeWeight:3 }});  // Imposta il colore del percorso
-                                } else if (dict['ci'] >= 0.7 && dict['ci'] < 1.5){
+                                } else if (dict['ci'] >= 0.6 && dict['ci'] < 1){
                                     directionRender.setOptions({ polylineOptions: { strokeColor: '#fd8700', strokeWeight:3 } });  // Imposta il colore del percorso
                                 } else {
                                 directionRender.setOptions({ polylineOptions: { strokeColor: '#FF0000', strokeWeight:3 } });  // Imposta il colore del percorso
@@ -201,11 +201,11 @@
                     });
 
                     let info_p = '';
-                    if(dict["ci"] < 0.7)
+                    if(dict["ci"] < 0.6)
                     {
                         info_p = '<div id="way"><div id="color-way"><span id="dot" class="yellow"></span></div>';
                     }
-                    else if (dict['ci'] >= 0.7 && dict['ci'] < 1.5)
+                    else if (dict['ci'] >= 0.6 && dict['ci'] < 1)
                     {
                         info_p = '<div id="way"><div id="color-way"><span id="dot" class="orange"></span></div>';
                     }
@@ -220,7 +220,7 @@
                         info_p = info_p + '</p><p>Furti: '+ String(dict['fur']) +'</p>'; 
                     }
                     if (dict['drug'] != 0) {
-                        info_p = info_p +'<p>Droghe: '+ String(dict['drug']) +'</p>';
+                        info_p = info_p +'<p>Crimini per droghe: '+ String(dict['drug']) +'</p>';
                     }
                     if (dict['rap'] != 0) {
                         info_p = info_p +'<p>Rapine: '+ String(dict['rap']) +'</p>';
