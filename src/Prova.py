@@ -4,48 +4,68 @@ proviamo prima una distanza naive tipo lat1 - lat2 + lng1 - lng2 SEMBRA FUNZIONA
 altrimenti cedi chatGPT
 '''
 
-from scraping import scraperBL
+'''from scraping import scraperBL
 
-scraper = scraperBL('https://barilive.it/?s=furti')
+scraper = scraperBL('fur')
 
 la = scraper.scrape()
 
 print(la)
+x = 2
+if type(scraper) == type(scraperBL('')):    #TODO vedi se c'è un modo più carino
+    print('scraperBL')
+else:
+    print('not scraperBL')'''
 
 
 
 
-'''from datetime import datetime
+from datetime import datetime, timedelta
+import locale
 
+# Impostare la localizzazione italiana
+locale.setlocale(locale.LC_TIME, "it_IT")
 # Ottenere la data corrente
 data_corrente = datetime.now()
 
 # Formattare la data come una stringa
-data_formattata = data_corrente.strftime("%Y")
+data_formattata = data_corrente.strftime("%d %B")
+
+ven = data_corrente - timedelta(days = 2)
 
 # Stampare la data formattata
-print("Data corrente formattata:", data_formattata)
-'''
+print("Data corrente formattata:", ven.strftime('%A'))
+print('venerdi')
 
 
-'''from spacy.lang.en import English
 
-nlp = English()
+
+'''from spacy.lang.it import Italian
+from scraping import scraperBT
+nlp = Italian()
 ruler = nlp.add_pipe("entity_ruler")
-patterns = [{"label": "ORG", "pattern": "Apple", "id": "apple"},
-            {"label": "GPE", "pattern": [{"LOWER": "san"}, {"LOWER": "francisco"}], "id": "san-francisco"},
-            {"label": "GPE", "pattern": [{"LOWER": "san"}, {"LOWER": "fran"}], "id": "san-francisco"},
-            {'label':'YEAR', 'pattern': [{'TEXT': {'REGEX': '20[0-9][0-9]'}}]}]
+patterns = [ {'label':'DATE', 'pattern': [{'LOWER': {'REGEX': 'stamattina|oggi|stasera'}}, {'LOWER':'pomeriggio', 'OP':'{0,1}'}], 'id':'OGGI'},
+             {'label':'DATE', 'pattern': [{'LOWER': 'ieri'}, {'LOWER': {'REGEX': 'mattina|pomeriggio|sera'}}], 'id':'IERI'},
+             {'label':'DATE', 'pattern': [{'LOWER':"altro"}, {'LOWER':'ieri'}], 'id':"L'ALTRO IERI"},
+             {'label':'DATE', 'pattern': [{'LOWER':"lunedì"}, {'LOWER':'scorso'}], 'id':"LUNEDI"},
+             {'label':'DATE', 'pattern': [{'LOWER':"martedì"}, {'LOWER':'scorso'}], 'id':"MARTEDI"},
+             {'label':'DATE', 'pattern': [{'LOWER':"mercoledì"}, {'LOWER':'scorso'}], 'id':"MERCOLEDI"},
+             {'label':'DATE', 'pattern': [{'LOWER':"giovedì"}, {'LOWER':'scorso'}], 'id':"GIOVEDI"},
+             {'label':'DATE', 'pattern': [{'LOWER':"venerdì"}, {'LOWER':'scorso'}], 'id':"VENERDI"},
+             {'label':'DATE', 'pattern': [{'LOWER':"sabato"}, {'LOWER':'scorso'}], 'id':"SABATO"},
+             {'label':'DATE', 'pattern': [{'LOWER':"domenica"}, {'LOWER':'scorsa'}], 'id':"DOMENICA"},
+             {'label':'DATE', 'pattern': [{'IS_DIGIT':True}, {'LOWER': {'REGEX': 'gennaio|febbraio|marzo|aprile|maggio|giugno|luglio|agosto|settembre|ottobre|novembre|dicembre'}}]},
+             {'label':'YEAR', 'pattern': [{'TEXT': {'REGEX': '20[0-9][0-9]'}}]}]
 
 ruler.add_patterns(patterns)
 
-doc1 = nlp("Apple is opening its first big office in San Francisco in the 2000.")
+doc1 = nlp("L'altro ieri sono andato a percoche.")
 print([(ent.text, ent.label_, ent.ent_id_) for ent in doc1.ents])
 
-doc2 = nlp("Apple is opening its first big office in San Fran.")
+doc2 = nlp("Stamattina non faceva freddo come ieri sera")
 print([(ent.text, ent.label_, ent.ent_id_) for ent in doc2.ents])
-'''
 
+'''
 '''import json
 import xml.etree.ElementTree as ET
 

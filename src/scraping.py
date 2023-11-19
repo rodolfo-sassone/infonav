@@ -7,19 +7,38 @@ Created on 19 set 2023
 import bs4
 import requests
 from myParser import Parser
-from datetime import datetime
+from datetime import datetime, timedelta
+import locale
 #BOT per scraping su BARI TODAY
 
 class scraperBT(object):
     '''
     classdocs
     '''
-    def __init__(self, link_topic):
-        self.link_topic = link_topic
+    def __init__(self, topic):
+        links = {'inc': ["/tag/incidenti-stradali/"], 'fur':["/tag/furti/", "/tag/furto/"], 'rap':['/tag/rapine/'], 'fire':['/tag/incendi/'], 'drug':['/tag/droga/'], 'arr':['/tag/arresti/'], 'kill':['/tag/omicidi/'], 'agg': ['/tag/aggressioni/'], 'spa':['/tag/sparatoria/']}
+        self.link_topic = links[topic]
         self.prefisso = "https://www.baritoday.it"
-        self.base_link = self.prefisso + self.link_topic
+        self.base_link = self.prefisso + self.link_topic[0]
     
-    def get_pages(self, link = '', list_pages = []):
+
+    def get_pages_per_link(self, min_pages = 10, links = []):
+        if links == []:
+            links = self.link_topic
+
+        list_pages = []
+        for link in links:
+            old_len = 0
+
+            list_pages = self.get_pages(link = self.prefisso + link, list_pages = list_pages)
+            while len(list_pages) < min_pages and old_len < len(list_pages):
+                new_link = self.prefisso + list_pages[-1]
+                old_len = len(list_pages)
+                list_pages = self.get_pages(link = new_link, list_pages = list_pages)
+        
+        return list_pages
+
+    def get_pages(self, link, list_pages):
         if link == '':
             link = self.base_link
             
@@ -32,8 +51,8 @@ class scraperBT(object):
         pagine = div_pagine.find_all('a', class_="c-pagination__item u-flex u-items-center u-justify-center u-label-04 u-no-underline u-mr-base u-py-xxsmall")
         
         #il primo link non e' presente nella pagina
-        if self.link_topic not in list_pages:
-            list_pages.append(self.link_topic)
+        if link[len(self.prefisso):] not in list_pages:
+            list_pages.append(link[len(self.prefisso):])
 
         for pagina in pagine:
             l = pagina.get('href')
@@ -76,17 +95,13 @@ class scraperBT(object):
         return la
         
     def scrape(self, min_pages = 10):
-        old_len = 0
+        locale.setlocale(locale.LC_TIME, "it_IT")
 
-        list_pages = self.get_pages(list_pages = [])
-        while len(list_pages) < min_pages and old_len < len(list_pages):
-            new_link = self.prefisso + list_pages[-1]
-            old_len = len(list_pages)
-            list_pages = self.get_pages(link = new_link, list_pages = list_pages)
+        list_pages = self.get_pages_per_link(links = self.link_topic, min_pages=min_pages)
         
         list_articles = self.get_articles(list_pages)
-        docs = Parser().parse_where(list_articles)
-        
+        docs = Parser().parse(list_articles, 'BT')
+
         #LOCALITA NON AGGIUNTA ALLA PIPELINE di spacy quindi niente localita' tra le ent
         list_addresses = []
         current = datetime.now()
@@ -99,15 +114,118 @@ class scraperBT(object):
                     addresses.append(ent.ent_id_.lower())
                 elif ent.label_.lower() == 'year':
                     year = ent.text
-            list_addresses.append({'addresses': addresses, 'year': year}) #lista di indirizzi per ogni articolo trovato e anno
+
+            date = self.get_date(current, doc, year)
+            list_addresses.append({'addresses': addresses, 'date':date, 'year': year}) #lista di indirizzi per ogni articolo trovato e anno
 
         return list_addresses
+
+    def get_date(self, current, doc, year):
+        date = ''
+        for ent in doc.ents:
+            if ent.label_.lower() == 'date':
+                if ent.id_.lower() == 'oggi' and year == '2023':
+                    date = current.strftime('%d %B')
+                elif ent.id_.lower() == 'ieri' and year == '2023':
+                    day = current - timedelta(days=1)
+                    date = day.strftime('%d %B')
+                elif ent.id_.lower() == "l'altro ieri" and year == '2023':
+                    day = current - timedelta(days=2)
+                    date = day.strftime('%d %B')
+                elif ent.id_.lower() == "lunedi" and year == '2023':
+                    today = current.strftime('%A')
+                    if today == 'giovedì':
+                        td = 3
+                    elif today == 'venerdì':
+                        td = 4
+                    elif today == 'sabato':
+                        td = 5
+                    elif today == 'domenica':
+                        td = 6
+                    day = current - timedelta(days = td)
+                    date = day.strftime('%d %B')
+                elif ent.id_.lower() == "martedi" and year == '2023':
+                    today = current.strftime('%A')
+                    if today == 'venerdì':
+                        td = 3
+                    elif today == 'sabato':
+                        td = 4
+                    elif today == 'domenica':
+                        td = 5
+                    elif today == 'lunedì':
+                        td = 6
+                    day = current - timedelta(days = td)
+                    date = day.strftime('%d %B') 
+                elif ent.id_.lower() == "mercoledi" and year == '2023':
+                    today = current.strftime('%A')
+                    if today == 'sabato':
+                        td = 3
+                    elif today == 'domenica':
+                        td = 4
+                    elif today == 'lunedì':
+                        td = 5
+                    elif today == 'martedì':
+                        td = 6
+                    lun = current - timedelta(days = td)
+                    date = lun.strftime('%d %B')
+                elif ent.id_.lower() == "giovedi" and year == '2023':
+                    today = current.strftime('%A')
+                    if today == 'domenica':
+                        td = 3
+                    elif today == 'lunedì':
+                        td = 4
+                    elif today == 'martedì':
+                        td = 5
+                    elif today == 'mercoledì':
+                        td = 6
+                    lun = current - timedelta(days = td)
+                    date = lun.strftime('%d %B')
+                elif ent.id_.lower() == "venerdi" and year == '2023':
+                    today = current.strftime('%A')
+                    if today == 'lunedì':
+                        td = 3
+                    elif today == 'martedì':
+                        td = 4
+                    elif today == 'mercoledì':
+                        td = 5
+                    elif today == 'giovedì':
+                        td = 6
+                    lun = current - timedelta(days = td)
+                    date = lun.strftime('%d %B')
+                elif ent.id_.lower() == "sabato" and year == '2023':
+                    today = current.strftime('%A')
+                    if today == 'martedì':
+                        td = 3
+                    elif today == 'mercoledì':
+                        td = 4
+                    elif today == 'giovedì':
+                        td = 5
+                    elif today == 'venerdì':
+                        td = 6
+                    lun = current - timedelta(days = td)
+                    date = lun.strftime('%d %B')
+                elif ent.id_.lower() == "domenica" and year == '2023':
+                    today = current.strftime('%A')
+                    if today == 'mercoledì':
+                        td = 3
+                    elif today == 'giovedì':
+                        td = 4
+                    elif today == 'venerdì':
+                        td = 5
+                    elif today == 'sabato':
+                        td = 6
+                    lun = current - timedelta(days = td)
+                    date = lun.strftime('%d %B')
+                elif ent.id_.lower() == 'norm':
+                    date = ent.text
+        return date
     
 
 class scraperBL(object):
 
-    def __init__(self, link_topic):
-        self.link_topic = link_topic
+    def __init__(self, topic):
+        links = {'inc': 'https://barilive.it/?s=incidenti+stradali', 'fur':'https://barilive.it/?s=furti', 'rap':'https://barilive.it/?s=rapine', 'fire':'https://barilive.it/?s=incendi', 'drug':'https://barilive.it/?s=droga', 'arr':'https://barilive.it/?s=arresti', 'kill':'https://barilive.it/?s=omicidi', 'agg': 'https://barilive.it/?s=aggressioni', 'spa':'https://barilive.it/?s=sparatoria'}
+        self.link_topic = links[topic]
 
     def get_nextPage(self, soup):
         link = None
@@ -128,9 +246,13 @@ class scraperBL(object):
         la = []
         for art in articles:
             title = art.find('h3').get_text()
-            paragraph = art.find('p').get_text()
             date = art.find('span', class_ = 'live-search-date').get_text()
-            text = title + paragraph + date
+            text = date + ' ' + title
+
+            paragraph = art.find('p')
+            if paragraph != None:
+                tp = paragraph.get_text()
+                text = text + ' ' + tp
 
             la.append(text)
 
@@ -153,7 +275,7 @@ class scraperBL(object):
             link_page = self.get_nextPage(soup)
             c = c + 1
         
-        docs = Parser().parse_where(list_articles)
+        docs = Parser().parse(list_articles, 'BL')
         
         #LOCALITA NON AGGIUNTA ALLA PIPELINE di spacy quindi niente localita' tra le ent
         list_addresses = []
@@ -162,11 +284,14 @@ class scraperBL(object):
         for doc in docs:
             addresses = []
             year = cy
+            date = ''
             for ent in doc.ents:
                 if ent.label_.lower() == 'luogo':
                     addresses.append(ent.ent_id_.lower())
                 elif ent.label_.lower() == 'year':
                     year = ent.text
-            list_addresses.append({'addresses': addresses, 'year': year}) #lista di indirizzi per ogni articolo trovato e anno
+                elif ent.label_.lower() == 'date':
+                    date = ent.text
+            list_addresses.append({'addresses': addresses, 'date': date,'year': year}) #lista di indirizzi per ogni articolo trovato e anno
 
         return list_addresses

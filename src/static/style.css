@@ -111,8 +111,7 @@ a {
 #way {
     display: flex;
     align-items: center;
-    border-bottom-width: 2px;
-    border-bottom-color: gray;
+    border-bottom: 0.3px solid rgb(218, 239, 255);;
 }
 
 

@@ -7,8 +7,7 @@ import json
 import xml.etree.ElementTree as ET
 import requests
 from flask import Flask, render_template
-from myParser import Parser
-from scraping import scraperBT
+from scraping import scraperBL, scraperBT
 from way import way, way
 from page_template import template
 from datetime import datetime
@@ -18,15 +17,22 @@ app = Flask(__name__)
 
 #pipeline su bari today
 #effettua scraping, parsing e gecoding. restituisce una lista con le coordinate e il numero di crimini in ogni via riconosciuta
-def scraping(link, min_pages = 10):
-    scraper = scraperBT(link)
+def scraping(topic, min_pages = 10):
+    BTscraper = scraperBT(topic)
+    BLscraper = scraperBL(topic)
 
-    list_addresses = scraper.scrape(min_pages)
+    list_addressesBT = BTscraper.scrape(min_pages)
+
+    list_addressesBL = BLscraper.scrape(min_pages)
     
-    for addresses in list_addresses:
+    for item in list_addressesBL:
+        if item not in list_addressesBT:
+            list_addressesBT.append(item)
+
+    for addresses in list_addressesBT:
         print(addresses)
 
-    return list_addresses
+    return list_addressesBT
 
 
 def crime_counter(list_addresses):
@@ -129,14 +135,15 @@ def crime_index(way_fur = None, way_drug = None, way_rap = None, way_kill = None
 
     ways = []
     history = way()
+    current = datetime.now()
+    past_y = str(current.year - 1)
     for year in crimes:
-        if year == '2022':  #TODO calcola anno precedente
+        if year == past_y:  #TODO calcola anno precedente
             for _, wayy in crimes[year].items():
                 history.update_crimes(wayy)
     print('******************************HISTORY(2022)******************************************')
     print(history.get_crimes())
     print('******************************2023******************************************')
-    current = datetime.now()
     cy = current.strftime('%Y')
     print(crimes[cy])
     for name, wayy in crimes[cy].items():
@@ -238,9 +245,8 @@ cri_template = template()
 def render_acc_template(template = acc_template):
     with app.app_context():
         print('Started')
-        LINK_INCIDENTI = "/tag/incidenti-stradali/"
 
-        list_addresses = scraping(LINK_INCIDENTI, min_pages = 50)
+        list_addresses = scraping('inc', min_pages = 35)
 
         list_addr, intersections = crime_counter(list_addresses)
 
@@ -258,26 +264,14 @@ def render_acc_template(template = acc_template):
 
 def render_cri_template(template = cri_template):
     with app.app_context():
-        LINK_FURTI1 = "/tag/furti/"
-        LINK_FURTI2 = "/tag/furto/"
-        LINK_RAPINE = '/tag/rapine/'    
-        LINK_INCENDI = '/tag/incendi/'
-        LINK_DROGA = '/tag/droga/'
-        LINK_ARRESTI = '/tag/arresti/' #TODO da utilizzare, trovato massimo ISTAT
-        LINK_OMICIDI = '/tag/omicidi/'
-        LINK_AGGRESSIONI = '/tag/aggressioni/'
-        LINK_SPARATORIA = '/tag/sparatoria/'
-        
-        addr_fur1 = scraping(LINK_FURTI1, min_pages = 35)
-        addr_fur2 = scraping(LINK_FURTI2, min_pages = 35)
-        addr_fur = addr_fur1 + addr_fur2
-
-        addr_drug = scraping(LINK_DROGA, min_pages = 35)
-        addr_rap = scraping(LINK_RAPINE, min_pages = 35)
-        addr_kill = scraping(LINK_OMICIDI, min_pages = 35)
-        addr_agg = scraping(LINK_AGGRESSIONI, min_pages = 35)
-        addr_spa = scraping(LINK_SPARATORIA, min_pages = 35)
-        addr_fire = scraping(LINK_INCENDI, min_pages = 35)
+        #aggiungi arresti
+        addr_fur = scraping('fur', min_pages = 35)
+        addr_drug = scraping('drug', min_pages = 35)
+        addr_rap = scraping('rap', min_pages = 35)
+        addr_kill = scraping('kill', min_pages = 35)
+        addr_agg = scraping('agg', min_pages = 35)
+        addr_spa = scraping('spa', min_pages = 35)
+        addr_fire = scraping('fire', min_pages = 35)
 
         way_fur, _ = crime_counter(addr_fur)
         way_drug, _ = crime_counter(addr_drug)
