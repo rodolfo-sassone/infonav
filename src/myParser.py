@@ -34,7 +34,7 @@ class Parser(object):
                             {'label':'DATE', 'pattern': [{'LOWER':"domenica"}, {'LOWER': {'REGEX': 'mattina|pomeriggio|sera|scorso'}}], 'id':"DOMENICA"},
                             {'label':'DATE', 'pattern': [{'IS_DIGIT':True}, {'LOWER': {'REGEX': 'gennaio|febbraio|marzo|aprile|maggio|giugno|luglio|agosto|settembre|ottobre|novembre|dicembre'}}], 'id':'NORM'}]
         elif scraper == 'BL':
-             date_patterns = [{'label':'DATE', 'pattern': [{'IS_DIGIT':True}, {'LOWER': {'REGEX': 'gennaio|febbraio|marzo|aprile|maggio|giugno|luglio|agosto|settembre|ottobre|novembre|dicembre'}}], 'id':'NORM'}]
+            date_patterns = [{'label':'DATE', 'pattern': [{'IS_DIGIT':True}, {'LOWER': {'REGEX': 'gennaio|febbraio|marzo|aprile|maggio|giugno|luglio|agosto|settembre|ottobre|novembre|dicembre'}}], 'id':'NORM'}]
 
         patterns = patterns + date_patterns
         ruler.add_patterns(patterns)

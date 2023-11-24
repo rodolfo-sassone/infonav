@@ -24,9 +24,9 @@
     <div id="key">
         <h4>LEGENDA</h4>
         <p>
-            <span id="dot" class="yellow"></span> 0.3&#8804;tasso criminalità&#60;0.6&nbsp;&nbsp;
-            <span id="dot" class="orange"></span> 0.6&#8804;tasso criminalità&#60;1&nbsp;&nbsp;
-            <span id="dot" class="red"></span> tasso criminalità&#8805;1.5
+            <span id="dot" class="yellow"></span> 0.1&#8804;tasso criminalità&#60;0.4&nbsp;&nbsp;
+            <span id="dot" class="orange"></span> 0.4&#8804;tasso criminalità&#60;0.7&nbsp;&nbsp;
+            <span id="dot" class="red"></span> 0.7&#8804;tasso criminalità&#8804;1
         </p>
     </div>
     <div id="info">
@@ -137,7 +137,7 @@
 			//STRADE
             for(i=0;i<way_ci.length;i++){
                 let dict = way_ci[i];
-                if (dict['ci'] >= 0.3){
+                if (dict['ci'] >= 0.4){
                     // Imposta le coordinate di partenza e arrivo per il percorso
                     let start = new google.maps.LatLng(dict['start']['lat'], dict['start']['lng']);
                     let end = new google.maps.LatLng(dict['end']['lat'], dict['end']['lng']);
@@ -163,7 +163,7 @@
                     new google.maps.DirectionsService().route(request, function(response, status) {
                         if (status == google.maps.DirectionsStatus.OK) 
                         {
-                            if(dict['ci'] >= 0.3)
+                            if(dict['ci'] >= 0.4)
                             {// Aggiungi il percorso con DirectionsRenderer
                                 let directionRender = new google.maps.DirectionsRenderer({
                                         map: map,
@@ -173,13 +173,13 @@
                                         suppressBicyclingLayer: true
                                     });
                                 
-                                if(dict["ci"] < 0.6)  //TODO scaglioni sensati
+                                if(dict["ci"] < 0.6) 
                                 {    
-                                    directionRender.setOptions({polylineOptions: { strokeColor: '#ffd800',  strokeWeight:3 }});  // Imposta il colore del percorso
-                                } else if (dict['ci'] >= 0.6 && dict['ci'] < 1){
-                                    directionRender.setOptions({ polylineOptions: { strokeColor: '#fd8700', strokeWeight:3 } });  // Imposta il colore del percorso
+                                    directionRender.setOptions({polylineOptions: { strokeColor: '#ffd800',  strokeWeight:4, clickable:false  }});  // Imposta il colore del percorso
+                                } else if (dict['ci'] >= 0.6 && dict['ci'] < 0.8){
+                                    directionRender.setOptions({ polylineOptions: { strokeColor: '#fd8700', strokeWeight:3, clickable:false  } });  // Imposta il colore del percorso
                                 } else {
-                                directionRender.setOptions({ polylineOptions: { strokeColor: '#FF0000', strokeWeight:3 } });  // Imposta il colore del percorso
+                                directionRender.setOptions({ polylineOptions: { strokeColor: '#FF0000', strokeWeight:3, clickable:false  } });  // Imposta il colore del percorso
                                 }
                             }
 
@@ -205,7 +205,7 @@
                     {
                         info_p = '<div id="way"><div id="color-way"><span id="dot" class="yellow"></span></div>';
                     }
-                    else if (dict['ci'] >= 0.6 && dict['ci'] < 1)
+                    else if (dict['ci'] >= 0.6 && dict['ci'] < 0.8)
                     {
                         info_p = '<div id="way"><div id="color-way"><span id="dot" class="orange"></span></div>';
                     }

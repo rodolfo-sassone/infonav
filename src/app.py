@@ -12,11 +12,16 @@ from way import way, way
 from page_template import template
 from datetime import datetime
 import threading
+import numpy as np
 
 app = Flask(__name__)
 
-#pipeline su bari today
-#effettua scraping, parsing e gecoding. restituisce una lista con le coordinate e il numero di crimini in ogni via riconosciuta
+
+def sigmoid(x):
+    return 1 / (1 + np.exp(-x))
+
+
+
 def scraping(topic, min_pages = 10):
     BTscraper = scraperBT(topic)
     BLscraper = scraperBL(topic)
@@ -160,7 +165,7 @@ def crime_index(way_fur = None, way_drug = None, way_rap = None, way_kill = None
                 sub_index = v / (all.get_crime(k)/ year_in_all) #se nell'anno passato non abbiamo dati su un crimine utilizziamo la media della città come 'massimo'
             ci = ci + sub_index
 
-        ways.append({'ci':ci, 'address':name, 'fur':wayy.get_crime('fur'), 'drug':wayy.get_crime('drug'), 'rap':wayy.get_crime('rap'), 'kill':wayy.get_crime('kill'), 'agg':wayy.get_crime('agg'), 'spa':wayy.get_crime('spa'), 'fire':wayy.get_crime('fire')})
+        ways.append({'ci':sigmoid(ci), 'address':name, 'fur':wayy.get_crime('fur'), 'drug':wayy.get_crime('drug'), 'rap':wayy.get_crime('rap'), 'kill':wayy.get_crime('kill'), 'agg':wayy.get_crime('agg'), 'spa':wayy.get_crime('spa'), 'fire':wayy.get_crime('fire')})
 
     return ways
 
@@ -255,8 +260,6 @@ def render_acc_template(template = acc_template):
 
         list_addr, intersections = crime_counter(list_addresses)
 
-        #rate_way = rate_acc(ways = way_inc)
-        #rate_int = rate_acc(ints = int_inc)
         acc_per_way = sum_per_loc(list_addr)
         acc_per_int = sum_per_loc(intersections)
 
@@ -269,7 +272,6 @@ def render_acc_template(template = acc_template):
 
 def render_cri_template(template = cri_template):
     with app.app_context():
-        #aggiungi arresti
         addr_fur = scraping('fur', min_pages = 35)
         addr_drug = scraping('drug', min_pages = 35)
         addr_rap = scraping('rap', min_pages = 35)
@@ -309,8 +311,8 @@ cri_thread = threading.Thread(target = render_cri_template, kwargs = {'template'
 acc_thread.start()
 cri_thread.start()
 
-timer = threading.Timer(3600, update_templates, kwargs = {'acc_temp': acc_template, 'cri_temp': cri_template}) #AGGIORNA LE PAGINE DOPO UN'ORA
-timer.start()
+'''timer = threading.Timer(3600, update_templates, kwargs = {'acc_temp': acc_template, 'cri_temp': cri_template}) #AGGIORNA LE PAGINE DOPO UN'ORA
+timer.start()'''
 
 
 @app.route('/')

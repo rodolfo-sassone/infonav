@@ -9,14 +9,14 @@ import requests
 from myParser import Parser
 from datetime import datetime, timedelta
 import locale
-#BOT per scraping su BARI TODAY
 
 class scraperBT(object):
     '''
-    classdocs
+    BOT per scraping su BARI TODAY
     '''
     def __init__(self, topic):
-        links = {'inc': ["/tag/incidenti-stradali/"], 'fur':["/tag/furti/", "/tag/furto/"], 'rap':['/tag/rapine/'], 'fire':['/tag/incendi/'], 'drug':['/tag/droga/'], 'arr':['/tag/arresti/'], 'kill':['/tag/omicidi/'], 'agg': ['/tag/aggressioni/'], 'spa':['/tag/sparatoria/']}
+        links = {'inc': ["/tag/incidenti-stradali/"], 'fur':["/tag/furti/", "/tag/furto/"], 'rap':['/tag/rapine/'], 'fire':['/tag/incendi/'], 'drug':['/tag/droga/'], 
+                 'arr':['/tag/arresti/'], 'kill':['/tag/omicidi/'], 'agg': ['/tag/aggressioni/'], 'spa':['/tag/sparatoria/']}
         self.link_topic = links[topic]
         self.prefisso = "https://www.baritoday.it"
         self.base_link = self.prefisso + self.link_topic[0]
@@ -59,8 +59,7 @@ class scraperBT(object):
             if l not in list_pages:
                 list_pages.append(l)
 
-        return list_pages
-    
+        return list_pages  
     
     def get_articles(self, list_page):
         la = []
@@ -94,32 +93,6 @@ class scraperBT(object):
                 
         return la
         
-    def scrape(self, min_pages = 10):
-        locale.setlocale(locale.LC_TIME, "it_IT")
-
-        list_pages = self.get_pages_per_link(links = self.link_topic, min_pages=min_pages)
-        
-        list_articles = self.get_articles(list_pages)
-        docs = Parser().parse(list_articles, 'BT')
-
-        #LOCALITA NON AGGIUNTA ALLA PIPELINE di spacy quindi niente localita' tra le ent
-        list_addresses = []
-        current = datetime.now()
-        cy = current.strftime('%Y')
-        for doc in docs:
-            addresses = []
-            year = cy
-            for ent in doc.ents:
-                if ent.label_.lower() == 'luogo':
-                    addresses.append(ent.ent_id_.lower())
-                elif ent.label_.lower() == 'year':
-                    year = ent.text
-
-            date = self.get_date(current, doc, year)
-            list_addresses.append({'addresses': addresses, 'date':date, 'year': year}) #lista di indirizzi per ogni articolo trovato e anno
-
-        return list_addresses
-
     def get_date(self, current, doc, year):
         date = ''
         for ent in doc.ents:
@@ -219,10 +192,37 @@ class scraperBT(object):
                 elif ent.id_.lower() == 'norm':
                     date = ent.text
         return date
-    
+
+    def scrape(self, min_pages = 10):
+        locale.setlocale(locale.LC_TIME, "it_IT")
+
+        list_pages = self.get_pages_per_link(links = self.link_topic, min_pages=min_pages)
+        
+        list_articles = self.get_articles(list_pages)
+        docs = Parser().parse(list_articles, 'BT')
+
+        list_addresses = []
+        current = datetime.now()
+        cy = current.strftime('%Y')
+        for doc in docs:
+            addresses = []
+            year = cy
+            for ent in doc.ents:
+                if ent.label_.lower() == 'luogo':
+                    addresses.append(ent.ent_id_.lower())
+                elif ent.label_.lower() == 'year':
+                    year = ent.text
+
+            date = self.get_date(current, doc, year)
+            list_addresses.append({'addresses': addresses, 'date':date, 'year': year})
+
+        return list_addresses
+
 
 class scraperBL(object):
-
+    '''
+    BOT per scraping su BARI LIVE
+    '''
     def __init__(self, topic):
         links = {'inc': 'https://barilive.it/?s=incidenti+stradali', 'fur':'https://barilive.it/?s=furti', 'rap':'https://barilive.it/?s=rapine', 'fire':'https://barilive.it/?s=incendi', 'drug':'https://barilive.it/?s=droga', 'arr':'https://barilive.it/?s=arresti', 'kill':'https://barilive.it/?s=omicidi', 'agg': 'https://barilive.it/?s=aggressioni', 'spa':'https://barilive.it/?s=sparatoria'}
         self.link_topic = links[topic]
@@ -277,7 +277,6 @@ class scraperBL(object):
         
         docs = Parser().parse(list_articles, 'BL')
         
-        #LOCALITA NON AGGIUNTA ALLA PIPELINE di spacy quindi niente localita' tra le ent
         list_addresses = []
         current = datetime.now()
         cy = current.strftime('%Y')
@@ -292,6 +291,6 @@ class scraperBL(object):
                     year = ent.text
                 elif ent.label_.lower() == 'date':
                     date = ent.text
-            list_addresses.append({'addresses': addresses, 'date': date,'year': year}) #lista di indirizzi per ogni articolo trovato e anno
+            list_addresses.append({'addresses': addresses, 'date': date,'year': year})
 
         return list_addresses
