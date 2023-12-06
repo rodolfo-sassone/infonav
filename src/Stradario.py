@@ -9,7 +9,7 @@ Codice utilizzato per creare il file di pattern per il riconoscimento delle stra
 import csv
 import spacy
 
-with open('InfoNav/data/stradariocittadibari.csv', mode='r') as csv_file:
+with open('InfoNav/src/data/stradariocittadibari.csv', mode='r') as csv_file:
     nlp = spacy.load("it_core_news_sm")
     csv_reader = csv.DictReader(csv_file, delimiter=";")
     first = True
@@ -32,7 +32,7 @@ with open('InfoNav/data/stradariocittadibari.csv', mode='r') as csv_file:
         data.append(luogo)
         
     #secondo giro per prendere solo i cognomi come abbreviazioni delle vie
-    file = open('InfoNav/data/stradariocittadibari.csv', mode='r')
+    file = open('InfoNav/src/data/stradariocittadibari.csv', mode='r')
     reader = csv.DictReader(file, delimiter=";")
     for riga in reader:
         if first:
