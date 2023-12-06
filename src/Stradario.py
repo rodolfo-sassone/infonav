@@ -2,11 +2,14 @@
 Created on 18 set 2023
 
 @author: Rodolfo Pio Sassone
+
+Codice utilizzato per creare il file di pattern per il riconoscimento delle strade di Bari partendo dallo stradario rilasciato dal comune
+
 '''
 import csv
 import spacy
 
-with open('InfoNav/src/stradariocittadibari.csv', mode='r') as csv_file:
+with open('InfoNav/data/stradariocittadibari.csv', mode='r') as csv_file:
     nlp = spacy.load("it_core_news_sm")
     csv_reader = csv.DictReader(csv_file, delimiter=";")
     first = True
@@ -29,7 +32,7 @@ with open('InfoNav/src/stradariocittadibari.csv', mode='r') as csv_file:
         data.append(luogo)
         
     #secondo giro per prendere solo i cognomi come abbreviazioni delle vie
-    file = open('InfoNav/src/stradariocittadibari.csv', mode='r')
+    file = open('InfoNav/data/stradariocittadibari.csv', mode='r')
     reader = csv.DictReader(file, delimiter=";")
     for riga in reader:
         if first:
@@ -53,30 +56,4 @@ with open('InfoNav/src/stradariocittadibari.csv', mode='r') as csv_file:
     patterns = data
     ruler.add_patterns(patterns)
     ruler.to_disk("InfoNav/src/data/patterns_withID.jsonl")
-  
-'''        
-with open('stradariocittadibari.csv', mode='r') as csv_file:
-    nlp = Italian()
-    csv_reader = csv.DictReader(csv_file, delimiter=";")
-    first = True
-    data = set()
-    
-    for riga in csv_reader:
-        if first:
-            #saltiamo la prima riga, quella di intestazione
-            first = False
-            continue
-        doc = nlp.make_doc(riga["LOCALITA'"])
-        
-        localita = {'label':'LOCALITA', 'pattern': []}
-        for token in doc:
-            t = {'LOWER':token.text.lower()}
-            localita['pattern'].append(t)
-        
-        data.append(localita)
-        
-    ruler = nlp.add_pipe("entity_ruler")
-    patterns = data
-    ruler.add_patterns(patterns)
-    ruler.to_disk("./patterns_localita.jsonl")
- '''        
+

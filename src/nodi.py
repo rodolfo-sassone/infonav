@@ -1,6 +1,6 @@
 '''
 crea un json contenente un dizionario con tutti i nodi e relativa lat e lng
-es. {"id_nodo":{"lat":lat_nodo, "lng":lng_nodo}, "id_nodo":{"lat":lat_nodo, "lng":lng_nodo}, ...}
+es. {"id_nodo":{"lat":lat_nodo, "lng":lng_nodo}, "id_nodo":{"lat":lat_nodo, "lng":lng_nodo}, ...} utilizzato per accesso diretto nel metodo start_end_coord()
 '''
 
 import xml.etree.ElementTree as ET
