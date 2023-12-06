@@ -7,7 +7,7 @@ All’interno di una città la criminalità non è equamente distribuita, ma esi
 
 
 ## Requisiti
-* Python 3.12 o versioni successive:
+* Python 3.8 o versioni successive:
     > scarica [Python](https://www.python.org/downloads/)
 * Chiave Google API
     > se non l'avete già ecco una guida di [come ottenere una chiave](https://www.webipedia.it/web-development/google-api-key-mappe/#:~:text=Come%20ottenere%20una%20Google%20API%20Key,-L%27API%20key&text=Crea%20un%20nuovo%20progetto%2C%20assegnagli,sul%20tuo%20sito%20in%20WordPress.)
