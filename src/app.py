@@ -311,8 +311,8 @@ cri_thread = threading.Thread(target = render_cri_template, kwargs = {'template'
 acc_thread.start()
 cri_thread.start()
 
-'''timer = threading.Timer(3600, update_templates, kwargs = {'acc_temp': acc_template, 'cri_temp': cri_template}) #AGGIORNA LE PAGINE DOPO UN'ORA
-timer.start()'''
+timer = threading.Timer(3600, update_templates, kwargs = {'acc_temp': acc_template, 'cri_temp': cri_template}) #AGGIORNA LE PAGINE DOPO UN'ORA
+timer.start()
 
 
 @app.route('/')
